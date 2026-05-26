@@ -1,18 +1,13 @@
-import { v2 as cloudinary } from 'cloudinary'
+import { v2 as cloudinary } from 'cloudinary';
 
 const connectCloudinary = async () => {
 
-    console.log("Cloudinary Connecting...")
-
     cloudinary.config({
-    
-    //    MONGODB_URI=mongodb+srv://anushika_db_user:Doctor2026@cluster0.sbrakpu.mongodb.net/Prescripto
-          cloud_name:"djkzegfam",
-          api_key:"217429151457584",
-          api_secret:"O13nXBRpQtd6FCYlLzRmBMdXfTM"
-    })
+        cloud_name: process.env.CLOUDINARY_NAME,
+        api_key: process.env.CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_SECRET_KEY
+    });
 
-    console.log("Cloudinary Connected")
 }
 
-export default connectCloudinary
+export default connectCloudinary;
