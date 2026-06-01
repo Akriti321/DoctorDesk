@@ -70,12 +70,12 @@ const MyProfile = () => {
                 <p className='text-gray-600 underline mt-3'>CONTACT INFORMATION</p>
                 <div className='grid grid-cols-[1fr_3fr] gap-y-2.5 mt-3 text-[#363636]'>
                     <p className='font-medium'>Email id:</p>
-                    <p className='text-blue-500'>{userData.email}</p>
+                    <p className='text-[#49BF94]'>{userData.email}</p>
                     <p className='font-medium'>Phone:</p>
 
                     {isEdit
                         ? <input className='bg-gray-50 max-w-52' type="text" onChange={(e) => setUserData(prev => ({ ...prev, phone: e.target.value }))} value={userData.phone} />
-                        : <p className='text-blue-500'>{userData.phone}</p>
+                        : <p className='text-[#49BF94]'>{userData.phone}</p>
                     }
 
                     <p className='font-medium'>Address:</p>

@@ -14,7 +14,12 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Verify from './pages/Verify'
 
+// import { useState } from 'react'
+// import FloatingAIButton from './components/floatingbutton.jsx'
+
 const App = () => {
+  // const [isChatOpen, setIsChatOpen] = useState(false)//'
+
   return (
     <div className='mx-4 sm:mx-[10%]'>
       <ToastContainer />
@@ -32,6 +37,17 @@ const App = () => {
         <Route path='/verify' element={<Verify />} />
       </Routes>
       <Footer />
+{/* 
+<FloatingAIButton
+  setIsChatOpen={setIsChatOpen}
+/>
+
+{
+  isChatOpen &&
+  <ChatBot
+    setIsChatOpen={setIsChatOpen}
+  />
+} */}
     </div>
   )
 }
