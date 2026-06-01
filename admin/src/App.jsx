@@ -14,6 +14,8 @@ import Login from './pages/Login';
 import DoctorAppointments from './pages/Doctor/DoctorAppointments';
 import DoctorDashboard from './pages/Doctor/DoctorDashboard';
 import DoctorProfile from './pages/Doctor/DoctorProfile';
+import RegisterDoctor from './pages/Doctor/RegisterDoctor'
+import PendingDoctors from "./pages/Admin/PendingDoctors";
 
 const App = () => {
 
@@ -35,13 +37,19 @@ const App = () => {
           <Route path='/doctor-dashboard' element={<DoctorDashboard />} />
           <Route path='/doctor-appointments' element={<DoctorAppointments />} />
           <Route path='/doctor-profile' element={<DoctorProfile />} />
+          <Route path="/doctor-register" element={<RegisterDoctor />}/>
+          <Route path="/pending-doctors" element={<PendingDoctors />} />
         </Routes>
       </div>
     </div>
   ) : (
     <>
       <ToastContainer />
-      <Login />
+      <Routes>
+      <Route path="/" element={<Login />} />
+      <Route path="/doctor-register" element={<RegisterDoctor />} />
+    </Routes>
+
     </>
   )
 }

@@ -7,6 +7,82 @@ import { v2 as cloudinary } from "cloudinary";
 import userModel from "../models/userModel.js";
 
 // API for admin login
+const pendingDoctors = async (req, res) => {
+    try {
+
+        const doctors =
+            await doctorModel.find({
+                verificationStatus: "pending"
+            }).select("-password")
+
+        res.json({
+            success: true,
+            doctors
+        })
+
+    } catch (error) {
+        res.json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
+const approveDoctor = async (req, res) => {
+    try {
+
+        const { doctorId } = req.body
+
+        await doctorModel.findByIdAndUpdate(
+            doctorId,
+            {
+                verificationStatus: "approved",
+                approvedAt: Date.now()
+            }
+        )
+
+        res.json({
+            success: true,
+            message: "Doctor Approved"
+        })
+
+    } catch (error) {
+        res.json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
+const rejectDoctor = async (req, res) => {
+    try {
+
+        const {
+            doctorId,
+            rejectionReason
+        } = req.body
+
+        await doctorModel.findByIdAndUpdate(
+            doctorId,
+            {
+                verificationStatus: "rejected",
+                rejectionReason
+            }
+        )
+
+        res.json({
+            success: true,
+            message: "Doctor Rejected"
+        })
+
+    } catch (error) {
+        res.json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
 const loginAdmin = async (req, res) => {
     try {
 
@@ -99,7 +175,8 @@ const addDoctor = async (req, res) => {
             about,
             fees,
             address: JSON.parse(address),
-            date: Date.now()
+            date: Date.now(),
+            verificationStatus: "approved",
         }
 
         const newDoctor = new doctorModel(doctorData)
@@ -116,12 +193,21 @@ const addDoctor = async (req, res) => {
 const allDoctors = async (req, res) => {
     try {
 
-        const doctors = await doctorModel.find({}).select('-password')
-        res.json({ success: true, doctors })
+        const doctors = await doctorModel.find({
+            verificationStatus: "approved"
+        }).select('-password')
+
+        res.json({
+            success: true,
+            doctors
+        })
 
     } catch (error) {
         console.log(error)
-        res.json({ success: false, message: error.message })
+        res.json({
+            success: false,
+            message: error.message
+        })
     }
 }
 
@@ -129,7 +215,9 @@ const allDoctors = async (req, res) => {
 const adminDashboard = async (req, res) => {
     try {
 
-        const doctors = await doctorModel.find({})
+        const doctors = await doctorModel.find({
+            verificationStatus: "approved"
+        })
         const users = await userModel.find({})
         const appointments = await appointmentModel.find({})
 
@@ -149,6 +237,9 @@ const adminDashboard = async (req, res) => {
 }
 
 export {
+    pendingDoctors,
+    approveDoctor,
+    rejectDoctor,
     loginAdmin,
     appointmentsAdmin,
     appointmentCancel,

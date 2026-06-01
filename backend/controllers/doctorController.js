@@ -1,5 +1,7 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import validator from "validator";
+import { v2 as cloudinary } from "cloudinary";
 import doctorModel from "../models/doctorModel.js";
 import appointmentModel from "../models/appointmentModel.js";
 
@@ -10,6 +12,13 @@ const loginDoctor = async (req, res) => {
 
         const { email, password } = req.body
         const user = await doctorModel.findOne({ email })
+
+        if (user && user.verificationStatus !== "approved") {
+            return res.json({
+                success: false,
+                message: "Waiting for Admin Approval"
+            })
+        }
 
         if (!user) {
             return res.json({ success: false, message: "Invalid credentials" })
@@ -190,7 +199,105 @@ const doctorDashboard = async (req, res) => {
     }
 }
 
+// API for doctor self registration
+const registerDoctor = async (req, res) => {
+    try {
+
+        const {
+            name,
+            email,
+            password,
+            speciality,
+            degree,
+            experience,
+            about,
+            fees,
+            address,
+            medicalLicenseNumber
+        } = req.body
+
+        const imageFile = req.files.image[0]
+        const governmentIdFile = req.files.governmentId[0]
+        const medicalCertificateFile = req.files.medicalCertificate[0]
+
+        if (!validator.isEmail(email)) {
+            return res.json({
+                success: false,
+                message: "Invalid Email"
+            })
+        }
+
+        const doctorExists = await doctorModel.findOne({ email })
+
+        if (doctorExists) {
+            return res.json({
+                success: false,
+                message: "Doctor already exists"
+            })
+        }
+
+        const salt = await bcrypt.genSalt(10)
+
+        const hashedPassword =
+            await bcrypt.hash(password, salt)
+
+        const imageUpload =
+            await cloudinary.uploader.upload(imageFile.path)
+
+        const govUpload =
+            await cloudinary.uploader.upload(governmentIdFile.path)
+
+        const certificateUpload =
+            await cloudinary.uploader.upload(
+                medicalCertificateFile.path
+            )
+
+        const doctorData = {
+            name,
+            email,
+            password: hashedPassword,
+
+            image: imageUpload.secure_url,
+
+            governmentIdUrl:
+                govUpload.secure_url,
+
+            medicalCertificateUrl:
+                certificateUpload.secure_url,
+
+            medicalLicenseNumber,
+
+            speciality,
+            degree,
+            experience,
+            about,
+            fees,
+
+            address: JSON.parse(address),
+
+            date: Date.now(),
+
+            verificationStatus: "pending"
+        }
+
+        await doctorModel.create(doctorData)
+
+        res.json({
+            success: true,
+            message: "Application Submitted"
+        })
+
+    } catch (error) {
+        console.log(error)
+        res.json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
 export {
+    registerDoctor,
     loginDoctor,
     appointmentsDoctor,
     appointmentCancel,

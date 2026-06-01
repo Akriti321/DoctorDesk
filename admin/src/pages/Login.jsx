@@ -3,6 +3,7 @@ import React, { useContext, useState } from 'react'
 import { DoctorContext } from '../context/DoctorContext'
 import { AdminContext } from '../context/AdminContext'
 import { toast } from 'react-toastify'
+import { Link } from 'react-router-dom'
 
 const Login = () => {
 
@@ -55,7 +56,23 @@ const Login = () => {
           <p>Password</p>
           <input onChange={(e) => setPassword(e.target.value)} value={password} className='border border-[#DADADA] rounded w-full p-2 mt-1' type="password" required />
         </div>
-        <button className='bg-primary text-white w-full py-2 rounded-md text-base'>Login</button>
+        <button className='bg-primary text-white w-full py-2 rounded-md text-base'>
+  Login
+</button>
+
+{
+  state === 'Doctor' && (
+    <p className='text-sm'>
+      New Doctor?{" "}
+      <Link
+        to="/doctor-register"
+        className='text-primary underline'
+      >
+        Register Here
+      </Link>
+    </p>
+  )
+}
         {
           state === 'Admin'
             ? <p>Doctor Login? <span onClick={() => setState('Doctor')} className='text-primary underline cursor-pointer'>Click here</span></p>
