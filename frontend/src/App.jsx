@@ -1,6 +1,6 @@
 import React from 'react'
 import Navbar from './components/Navbar'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import Home from './pages/Home'
 import Doctors from './pages/Doctors'
 import Login from './pages/Login'
@@ -14,11 +14,13 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Verify from './pages/Verify'
 
-// import { useState } from 'react'
-// import FloatingAIButton from './components/floatingbutton.jsx'
+import { useState } from 'react'
+import FloatingAIButton from './components/floatingbutton.jsx'
+import ChatBot from './components/chatbot.jsx'
 
 const App = () => {
-  // const [isChatOpen, setIsChatOpen] = useState(false)//'
+  const [isChatOpen, setIsChatOpen] = useState(false)
+  const location = useLocation()
 
   return (
     <div className='mx-4 sm:mx-[10%]'>
@@ -37,17 +39,20 @@ const App = () => {
         <Route path='/verify' element={<Verify />} />
       </Routes>
       <Footer />
-{/* 
-<FloatingAIButton
-  setIsChatOpen={setIsChatOpen}
-/>
 
-{
-  isChatOpen &&
-  <ChatBot
-    setIsChatOpen={setIsChatOpen}
-  />
-} */}
+{location.pathname !== '/login' && (
+  <>
+    <FloatingAIButton
+      setIsChatOpen={setIsChatOpen}
+    />
+
+    {isChatOpen && (
+      <ChatBot
+        setIsChatOpen={setIsChatOpen}
+      />
+    )}
+  </>
+)}
     </div>
   )
 }
