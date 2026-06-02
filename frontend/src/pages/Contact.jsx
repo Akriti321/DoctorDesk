@@ -13,11 +13,11 @@ const Contact = () => {
         <img className='w-full md:max-w-[360px]' src={assets.contact_image} alt="" />
         <div className='flex flex-col justify-center items-start gap-6'>
           <p className=' font-semibold text-lg text-gray-600'>OUR OFFICE</p>
-          <p className=' text-gray-500'>Doctor Desk Healthcare Services Pvt. Ltd.<br/>
+          <p className=' text-gray-500'>CareConnect Healthcare Services Pvt. Ltd.<br/>
             B-102, Ishan Park<br/>
             Lucknow, Uttar Pardesh 462011<br/>
             India</p>
-          <p className=' text-gray-500'>Contact :+91-9131369842 <br /> Email: DoctorDesk@gmail.com</p>
+          <p className=' text-gray-500'>Contact :+91-9131369842 <br /> Email: CareConnect@gmail.com</p>
           
           
         </div>

@@ -295,7 +295,90 @@ const registerDoctor = async (req, res) => {
         })
     }
 }
+// API to add prescription
+const addPrescription = async (req, res) => {
+    try {
 
+        const {
+            docId,
+            appointmentId,
+            medicines,
+            notes
+        } = req.body
+
+        const appointmentData =
+            await appointmentModel.findById(appointmentId)
+
+        if (!appointmentData) {
+            return res.json({
+                success: false,
+                message: "Appointment not found"
+            })
+        }
+
+        if (appointmentData.docId !== docId) {
+            return res.json({
+                success: false,
+                message: "Unauthorized"
+            })
+        }
+
+        await appointmentModel.findByIdAndUpdate(
+            appointmentId,
+            {
+                prescription: {
+                    medicines,
+                    notes
+                }
+            }
+        )
+
+        res.json({
+            success: true,
+            message: "Prescription Saved"
+        })
+
+    } catch (error) {
+        console.log(error)
+        res.json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
+
+// API to get prescription
+const getPrescription = async (req, res) => {
+    try {
+
+        const { appointmentId } = req.params
+
+        const appointment =
+            await appointmentModel.findById(
+                appointmentId
+            )
+
+        if (!appointment) {
+            return res.json({
+                success: false,
+                message: "Appointment not found"
+            })
+        }
+
+        res.json({
+            success: true,
+            prescription: appointment.prescription
+        })
+
+    } catch (error) {
+        console.log(error)
+        res.json({
+            success: false,
+            message: error.message
+        })
+    }
+}
 export {
     registerDoctor,
     loginDoctor,
@@ -306,5 +389,7 @@ export {
     appointmentComplete,
     doctorDashboard,
     doctorProfile,
-    updateDoctorProfile
+    updateDoctorProfile,
+    addPrescription,
+    getPrescription
 }
