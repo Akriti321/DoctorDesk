@@ -5,14 +5,27 @@ import axios from 'axios'
 import { toast } from 'react-toastify'
 import { assets } from '../assets/assets'
 import jsPDF from "jspdf"
-
+import {io} from 'socket.io-client'
 const MyAppointments = () => {
-
-    const { backendUrl, token } = useContext(AppContext)
+   const [socket, setSocket] = useState(null)
+   const {
+    backendUrl,
+    token,
+    userData
+} = useContext(AppContext)
     const navigate = useNavigate()
 
     const [appointments, setAppointments] = useState([])
     const [payment, setPayment] = useState('')
+    const [showChat, setShowChat] = useState(false)
+
+    const [selectedAppointment, setSelectedAppointment] =
+  useState(null)
+
+    const [messages, setMessages] = useState([])
+
+    const [messageText, setMessageText] =
+  useState('')
 
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -109,6 +122,36 @@ const MyAppointments = () => {
             getUserAppointments()
         }
     }, [token])
+    useEffect(() => {
+
+    const newSocket = io(backendUrl)
+
+    setSocket(newSocket)
+
+    return () => newSocket.disconnect()
+
+}, [])
+    useEffect(() => {
+
+    if (!socket) return
+
+    socket.on(
+        "receive_message",
+        (data) => {
+
+            setMessages(prev => [
+                ...prev,
+                data
+            ])
+
+        }
+    )
+
+    return () => {
+        socket.off("receive_message")
+    }
+
+}, [socket])
     const downloadPrescription = async (appointmentId) => {
     try {
 
@@ -282,6 +325,100 @@ const MyAppointments = () => {
         toast.error(error.message)
     }
 }
+const sendMessage = async () => {
+
+    console.log("SEND BUTTON CLICKED")
+
+    try {
+
+        console.log("Selected Appointment:",
+            selectedAppointment)
+
+        console.log("User:",
+            userData)
+
+        console.log("Message:",
+            messageText)
+
+        const { data } = await axios.post(
+
+            backendUrl + "/api/chat/send",
+
+            {
+                appointmentId:
+                    selectedAppointment._id,
+
+                senderId:
+                    userData._id,
+
+                senderType:
+                    "patient",
+
+                text:
+                    messageText
+            }
+
+        )
+
+        console.log("API RESPONSE:", data)
+
+        if (data.success) {
+
+    socket.emit(
+        "send_message",
+        {
+            senderType: "patient",
+            text: messageText
+        }
+    )
+
+    setMessageText("")
+
+    const msgData = await axios.get(
+        backendUrl +
+        `/api/chat/${selectedAppointment._id}`
+    )
+
+    if (msgData.data.success) {
+        setMessages(
+            msgData.data.messages
+        )
+    }
+
+}
+
+    } catch (error) {
+
+        console.log("ERROR:", error)
+
+    }
+
+
+}
+const loadMessages = async () => {
+
+  try {
+
+    const { data } = await axios.get(
+
+      backendUrl +
+      `/api/chat/${selectedAppointment._id}`
+
+    )
+
+    if (data.success) {
+
+      setMessages(data.messages)
+
+    }
+
+  } catch (error) {
+
+    console.log(error)
+
+  }
+
+}
       return (
         <div>
             <p className='pb-3 mt-12 text-lg font-medium text-gray-600 border-b'>My appointments</p>
@@ -317,6 +454,28 @@ const MyAppointments = () => {
 >
     Download Prescription
 </button>
+<button
+    onClick={async () => {
+
+    setSelectedAppointment(item)
+
+    setShowChat(true)
+
+    const { data } = await axios.get(
+        backendUrl + `/api/chat/${item._id}`
+    )
+
+    console.log(data)
+
+    if (data.success) {
+        setMessages(data.messages)
+    }
+
+}}
+    className='sm:min-w-48 py-2 border rounded bg-primary text-white'
+>
+    Chat With Doctor
+</button>
 </>
 }
 
@@ -326,6 +485,102 @@ const MyAppointments = () => {
                     </div>
                 ))}
             </div>
+        {
+  showChat && (
+
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+
+      <div className="bg-white w-[500px] rounded-lg p-5">
+
+        <h2 className="text-xl font-semibold mb-4">
+          Chat With Doctor
+        </h2>
+
+        <div className="border h-[300px] overflow-y-auto p-3 mb-3 rounded">
+
+          {
+            messages.length === 0
+              ? (
+                <p className="text-gray-400">
+                  No messages yet
+                </p>
+              )
+              : (
+                messages.map((msg, index) => (
+
+  <div
+    key={index}
+    className={`mb-3 flex ${
+      msg.senderType === "patient"
+        ? "justify-end"
+        : "justify-start"
+    }`}
+  >
+
+    <div
+      className={`max-w-[70%] px-3 py-2 rounded-lg ${
+        msg.senderType === "patient"
+          ? "bg-primary text-white"
+          : "bg-gray-200 text-black"
+      }`}
+    >
+
+      <p className="text-xs mb-1 font-semibold">
+        {msg.senderType}
+      </p>
+
+      <p>
+        {msg.text}
+      </p>
+
+    </div>
+
+  </div>
+
+))
+
+                
+              )
+          }
+
+        </div>
+
+        <input
+          type="text"
+          value={messageText}
+          onChange={(e) =>
+            setMessageText(e.target.value)
+          }
+          placeholder="Type a message..."
+          className="w-full border p-2 rounded mb-3"
+        />
+
+        <div className="flex justify-end gap-2">
+
+          <button
+            onClick={() =>
+              setShowChat(false)
+            }
+            className="px-4 py-2 bg-gray-400 text-white rounded"
+          >
+            Close
+          </button>
+
+         <button
+    onClick={sendMessage}
+    className="px-4 py-2 bg-primary text-white rounded"
+>
+    Send
+</button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  )
+}
         </div>
     )
 }

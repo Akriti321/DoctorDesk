@@ -3,7 +3,8 @@ import { useContext, useEffect } from 'react'
 import { DoctorContext } from '../../context/DoctorContext'
 import { AppContext } from '../../context/AppContext'
 import { assets } from '../../assets/assets'
-
+import axios from 'axios'
+import {io} from 'socket.io-client'
 const DoctorAppointments = () => {
 
   //const { dToken, appointments, getAppointments, cancelAppointment, completeAppointment } = useContext(DoctorContext)
@@ -13,7 +14,10 @@ const DoctorAppointments = () => {
   getAppointments,
   cancelAppointment,
   completeAppointment,
-  savePrescription
+  profileData,
+  getProfileData,
+  savePrescription,
+  backendUrl
 } = useContext(DoctorContext)
   const { slotDateFormat, calculateAge, currency } = useContext(AppContext)
   const [showPrescription, setShowPrescription] = useState(false)
@@ -25,6 +29,15 @@ const DoctorAppointments = () => {
     frequency: ''
   }
 ])
+const [showChat, setShowChat] = useState(false)
+const [socket, setSocket] = useState(null)
+
+const [messages,
+setMessages] = useState([])
+
+const [messageText,
+setMessageText] =
+useState('')
 const [notes, setNotes] = useState('')
 const addMedicine = () => {
 
@@ -38,11 +51,119 @@ const addMedicine = () => {
   ])
 
 }
-    useEffect(() => {
-    if (dToken) {
-      getAppointments()
+const loadMessages = async (appointmentId) => {
+
+  try {
+
+    console.log("Loading messages for:",
+      appointmentId)
+
+    const { data } = await axios.get(
+      backendUrl + `/api/chat/${appointmentId}`
+    )
+
+    console.log(data)
+
+    if (data.success) {
+      setMessages(data.messages)
     }
-  }, [dToken])
+
+  } catch (error) {
+    console.log(error)
+  }
+
+}
+const sendMessage = async () => {
+
+  try {
+    console.log("Doctor Send Clicked")
+    console.log(selectedAppointment)
+    console.log(profileData)
+    const { data } = await axios.post(
+
+      backendUrl + "/api/chat/send",
+
+      {
+        appointmentId:
+          selectedAppointment._id,
+
+        senderId:
+          profileData._id,
+
+        senderType:
+          "doctor",
+
+        text:
+          messageText
+      }
+
+    )
+
+    if (data.success) {
+      socket.emit(
+    "send_message",
+    {
+        senderType: "doctor",
+        text: messageText
+    }
+)
+      setMessageText("")
+
+      loadMessages(
+        selectedAppointment._id
+      )
+
+    }
+
+  } catch (error) {
+
+    console.log(error)
+
+  }
+
+}
+    useEffect(() => {
+
+  if (dToken) {
+
+    getAppointments()
+
+    getProfileData()
+
+  }
+
+}, [dToken])
+
+useEffect(() => {
+
+    const newSocket = io(backendUrl)
+
+    setSocket(newSocket)
+
+    return () => newSocket.disconnect()
+
+}, [])
+useEffect(() => {
+
+    if (!socket) return
+
+    socket.on(
+        "receive_message",
+        (data) => {
+
+            setMessages(prev => [
+                ...prev,
+                data
+            ])
+
+        }
+    )
+
+    return () => {
+        socket.off("receive_message")
+    }
+
+}, [socket])
 
   return (
     <div className='w-full max-w-6xl m-5 '>
@@ -50,16 +171,17 @@ const addMedicine = () => {
       <p className='mb-3 text-lg font-medium'>All Appointments</p>
 
       <div className='bg-white border rounded text-sm max-h-[80vh] overflow-auto'>
-        <div className='max-sm:hidden grid grid-cols-[0.5fr_1.5fr_1fr_2fr_1fr_2fr] gap-1 py-3 px-6 border-b'>
-          <p>#</p>
-          <p>Patient</p>
-          <p>Payment</p>
-          <p>Date & Time</p>
-          <p>Fees</p>
-          <p className='text-red-500 font-bold'>Action</p>
-        </div>
+        <div className='max-sm:hidden grid grid-cols-[0.5fr_1.5fr_1fr_2fr_1fr_1fr_2fr] gap-1 py-3 px-6 border-b'>
+  <p>#</p>
+  <p>Patient</p>
+  <p>Payment</p>
+  <p>Date & Time</p>
+  <p>Fees</p>
+  <p>Status</p>
+  <p>Actions</p>
+</div>
         {appointments.map((item, index) => (
-          <div className='flex flex-wrap justify-between max-sm:gap-5 max-sm:text-base sm:grid grid-cols-[0.5fr_1.5fr_1fr_2fr_1fr_2fr] gap-1 items-center text-gray-500 py-3 px-6 border-b hover:bg-gray-50' key={index}>
+          <div className='flex flex-wrap justify-between max-sm:gap-5 max-sm:text-base sm:grid grid-cols-[0.5fr_1.5fr_1fr_2fr_1fr_1fr_2fr] gap-1 items-center text-gray-500 py-3 px-6 border-b hover:bg-gray-50' key={index}>
             <p className='max-sm:hidden'>{index}</p>
             <div className='flex items-center gap-2'>
               <img src={item.userData.image} className='w-8 rounded-full' alt="" /> <p>{item.userData.name}</p>
@@ -72,34 +194,45 @@ const addMedicine = () => {
             <p>{slotDateFormat(item.slotDate)}, {item.slotTime}</p>
             <p>{currency}{item.amount}</p>
             {item.cancelled
-              ? <p className='text-red-400 text-xs font-medium'>Cancelled</p>
-              : item.isCompleted
-  ? <div className='flex items-center gap-2'>
-      <p className='text-green-500 text-xs font-medium'>
-        Completed
-      </p>
+  ? <p className='text-red-400 text-xs font-medium'>Cancelled</p>
+  : item.isCompleted
+    ? <>
+  <div>
+    <span className='px-2 py-1 bg-green-100 text-green-600 rounded-full text-xs font-medium'>
+      Completed
+    </span>
+  </div>
 
-      <button
-        onClick={() => {
-          setSelectedAppointment(item)
-          setShowPrescription(true)
-        }}
-       className='px-2 py-1 bg-[#49BF94] hover:bg-[#3da97f] text-white rounded text-xs'
-      >
-        Prescription
-      </button>
-    </div>
+  <div className='flex items-center gap-2'>
+
+    <button
+      onClick={async () => {
+        setSelectedAppointment(item)
+        setShowChat(true)
+        await loadMessages(item._id)
+      }}
+      className='min-w-[70px] px-3 py-1 bg-primary text-white rounded text-xs'
+    >
+      Chat
+    </button>
+
+    <button
+      onClick={() => {
+        setSelectedAppointment(item)
+        setShowPrescription(true)
+      }}
+      className='min-w-[90px] px-3 py-1 bg-primary text-white rounded text-xs'
+    >
+      Prescription
+    </button>
+
+  </div>
+</>
+
+
                 : <div className='flex items-center gap-2'>
   
-  <button
-  onClick={() => {
-    setSelectedAppointment(item)
-    setShowPrescription(true)
-  }}
-  className='px-2 py-1 bg-[#49BF94] text-white rounded text-xs'
->
-  Prescription
-</button>
+ 
 
   <img
     onClick={() => cancelAppointment(item._id)}
@@ -199,7 +332,7 @@ const addMedicine = () => {
 }
 <button
   onClick={addMedicine}
-  className="mb-3 px-3 py-2 bg-green-500 text-white rounded"
+  className="mb-3 px-3 py-2 bg-primary text-white rounded"
 >
   + Add Medicine
 </button>
@@ -233,7 +366,7 @@ const addMedicine = () => {
     setShowPrescription(false)
 
   }}
-  className="px-4 py-2 bg-green-500 text-white rounded"
+  className="px-4 py-2 bg-primary text-white rounded"
 >
   Save
 </button>
@@ -243,6 +376,100 @@ const addMedicine = () => {
       </div>
 
     </div>
+  )
+}
+{
+  showChat && (
+
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+
+      <div className="bg-white w-[600px] rounded-lg p-5">
+
+        <h2 className="text-xl font-semibold mb-4">
+          Patient Chat
+        </h2>
+
+        <div className="border h-[350px] overflow-y-auto p-3 mb-3 rounded">
+
+          {
+            messages.length === 0
+              ? (
+                <p className="text-gray-400">
+                  No messages yet
+                </p>
+              )
+              : (
+                messages.map((msg, index) => (
+
+                  <div
+                    key={index}
+                    className={`mb-3 flex ${
+                      msg.senderType === "doctor"
+                        ? "justify-end"
+                        : "justify-start"
+                    }`}
+                  >
+
+                    <div
+                      className={`max-w-[70%] px-3 py-2 rounded-lg ${
+                        msg.senderType === "doctor"
+                          ? "bg-primary text-white"
+                          : "bg-gray-200 text-black"
+                      }`}
+                    >
+
+                      <p className="text-xs mb-1 font-semibold">
+                        {msg.senderType}
+                      </p>
+
+                      <p>
+                        {msg.text}
+                      </p>
+
+                    </div>
+
+                  </div>
+
+                ))
+              )
+          }
+
+        </div>
+
+        <input
+          type="text"
+          value={messageText}
+          onChange={(e) =>
+            setMessageText(e.target.value)
+          }
+          placeholder="Type a reply..."
+          className="w-full border p-2 rounded mb-3"
+        />
+
+        <div className="flex justify-end gap-2">
+
+          <button
+            onClick={() =>
+              setShowChat(false)
+            }
+            className="px-4 py-2 bg-gray-400 text-white rounded"
+          >
+            Close
+          </button>
+
+          <button
+            onClick={sendMessage}
+            className="px-4 py-2 bg-primary text-white rounded"
+          >
+            Send
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
   )
 }
     </div>
