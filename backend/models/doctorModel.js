@@ -28,17 +28,17 @@ const doctorSchema = new mongoose.Schema({
 
     medicalLicenseNumber: {
         type: String,
-        required: true
+        default: ""
     },
 
     governmentIdUrl: {
         type: String,
-        required: true
+        default: ""
     },
 
     medicalCertificateUrl: {
         type: String,
-        required: true
+        default: ""
     },
 
     verificationStatus: {

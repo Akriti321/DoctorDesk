@@ -236,6 +236,24 @@ const adminDashboard = async (req, res) => {
     }
 }
 
+//API to delete a doctor
+const deleteDoctor = async (req, res) => {
+    try {
+        const { doctorId } = req.params;
+
+        await doctorModel.findByIdAndDelete(doctorId);
+
+        res.json({
+            success: true,
+            message: "Doctor deleted successfully"
+        });
+    } catch (error) {
+        res.json({
+            success: false,
+            message: error.message
+        });
+    }
+}
 export {
     pendingDoctors,
     approveDoctor,
@@ -245,5 +263,6 @@ export {
     appointmentCancel,
     addDoctor,
     allDoctors,
-    adminDashboard
+    adminDashboard,
+    deleteDoctor
 }

@@ -379,6 +379,37 @@ const getPrescription = async (req, res) => {
         })
     }
 }
+
+//API to update profile picture
+const updateProfileImage = async (req, res) => {
+    try {
+        const doctorId = req.docId;
+        const imageFile = req.file;
+
+        const imageUpload = await cloudinary.uploader.upload(
+            imageFile.path,
+            { resource_type: "image" }
+        );
+
+        const imageUrl = imageUpload.secure_url;
+
+        await doctorModel.findByIdAndUpdate(doctorId, {
+            image: imageUrl
+        });
+
+        res.json({
+            success: true,
+            message: "Profile picture updated"
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.json({
+            success: false,
+            message: error.message
+        });
+    }
+};
 export {
     registerDoctor,
     loginDoctor,
@@ -391,5 +422,6 @@ export {
     doctorProfile,
     updateDoctorProfile,
     addPrescription,
-    getPrescription
+    getPrescription,
+    updateProfileImage
 }

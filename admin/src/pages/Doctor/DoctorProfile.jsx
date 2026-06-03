@@ -9,6 +9,38 @@ const DoctorProfile = () => {
     const { dToken, profileData, setProfileData, getProfileData } = useContext(DoctorContext)
     const { currency, backendUrl } = useContext(AppContext)
     const [isEdit, setIsEdit] = useState(false)
+    const [image, setImage] = useState(false)
+
+    const updateProfileImage = async () => {
+
+    if (!image) return;
+
+    try {
+
+        const formData = new FormData();
+
+        formData.append("image", image);
+
+        const { data } = await axios.post(
+            backendUrl + "/api/doctor/update-profile-image",
+            formData,
+            {
+                headers: { dToken }
+            }
+        );
+
+        if (data.success) {
+            toast.success(data.message);
+            getProfileData();
+            setImage(false);
+        } else {
+            toast.error(data.message);
+        }
+
+    } catch (error) {
+        toast.error(error.message);
+    }
+}
 
     const updateProfile = async () => {
 
@@ -50,8 +82,32 @@ const DoctorProfile = () => {
         <div>
             <div className='flex flex-col gap-4 m-5'>
                 <div>
-                    <img className='bg-primary/80 w-full sm:max-w-64 rounded-lg' src={profileData.image} alt="" />
-                </div>
+    <label htmlFor="image">
+        <img
+            className='bg-primary/80 w-full sm:max-w-64 rounded-lg cursor-pointer'
+            src={image ? URL.createObjectURL(image) : profileData.image}
+            alt=""
+        />
+    </label>
+
+    <input
+        type="file"
+        id="image"
+        hidden
+        accept="image/*"
+        onChange={(e) => setImage(e.target.files[0])}
+    />
+</div>
+{
+    image &&
+    <button
+        onClick={updateProfileImage}
+        className='mt-2 px-4 py-2 bg-primary text-white rounded'
+    >
+        Update Profile Picture
+    </button>
+}
+
 
                 <div className='flex-1 border border-stone-100 rounded-lg p-8 py-7 bg-white'>
 
