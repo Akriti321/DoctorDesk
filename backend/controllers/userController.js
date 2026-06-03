@@ -6,6 +6,7 @@ import doctorModel from "../models/doctorModel.js";
 import appointmentModel from "../models/appointmentModel.js";
 import { v2 as cloudinary } from 'cloudinary'
 import razorpay from 'razorpay';
+import { sendAppointmentEmail } from "../utils/sendEmail.js";
 
 // Gateway Initialize
 const razorpayInstance = new razorpay({
@@ -170,14 +171,57 @@ const bookAppointment = async (req, res) => {
             date: Date.now()
         }
 
-        const newAppointment = new appointmentModel(appointmentData)
-        await newAppointment.save()
+        const newAppointment =
+new appointmentModel(appointmentData)
+
+try
+{
+    await newAppointment.save()
+}
+catch(error)
+{
+    if(error.code === 11000)
+    {
+        return res.json({
+            success:false,
+            message:"Slot already booked by another user"
+        })
+    }
+
+    throw error
+}
 
         // save new slots data in docData
-        await doctorModel.findByIdAndUpdate(docId, { slots_booked })
+  
+await doctorModel.findByIdAndUpdate(docId, { slots_booked })
 
-        res.json({ success: true, message: 'Appointment Booked' })
 
+// try {
+//     await sendAppointmentEmail(
+//         userData.email,
+//         userData.name,
+//         docData.name,
+//         slotDate,
+//         slotTime
+//     );
+// } catch(error) {
+//     console.log("Email failed:", error.message);
+// }
+
+
+sendAppointmentEmail(
+    userData.email,
+    userData.name,
+    docData.name,
+    slotDate,
+    slotTime
+).catch(error => {
+    console.log("Email failed:", error.message);
+});
+res.json({
+    success: true,
+    message: 'Appointment Booked'
+})
     } catch (error) {
         console.log(error)
         res.json({ success: false, message: error.message })
