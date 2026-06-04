@@ -69,7 +69,7 @@ Powered by Gemini API
 
 ---
 
-## Tech Stack
+### Tech Stack
 
 Frontend: React.js, Tailwind CSS, Axios
 
@@ -128,13 +128,13 @@ PDF Download
 # Installation / Quickstart
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/Akriti321/CareConnect.git
 
 cd frontend
 npm install
 
 cd admin
-npm run dev
+npm install
 
 cd backend
 npm install
