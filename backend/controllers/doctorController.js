@@ -44,14 +44,14 @@ const loginDoctor = async (req, res) => {
 const appointmentsDoctor = async (req, res) => {
     try {
 
-        const { docId } = req.body
-        const appointments = await appointmentModel.find({ docId })
+        const docId = req.docId;
+        const appointments = await appointmentModel.find({ docId });
 
-        res.json({ success: true, appointments })
+        res.json({ success: true, appointments });
 
     } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })
+        console.log(error);
+        res.json({ success: false, message: error.message });
     }
 }
 
@@ -59,42 +59,64 @@ const appointmentsDoctor = async (req, res) => {
 const appointmentCancel = async (req, res) => {
     try {
 
-        const { docId, appointmentId } = req.body
+        const docId = req.docId;
+        const { appointmentId } = req.body;
 
-        const appointmentData = await appointmentModel.findById(appointmentId)
+        const appointmentData = await appointmentModel.findById(appointmentId);
+
         if (appointmentData && appointmentData.docId === docId) {
-            await appointmentModel.findByIdAndUpdate(appointmentId, { cancelled: true })
-            return res.json({ success: true, message: 'Appointment Cancelled' })
+            await appointmentModel.findByIdAndUpdate(
+                appointmentId,
+                { cancelled: true }
+            );
+
+            return res.json({
+                success: true,
+                message: 'Appointment Cancelled'
+            });
         }
 
-        res.json({ success: false, message: 'Appointment Cancelled' })
+        res.json({
+            success: false,
+            message: 'Appointment Cancelled'
+        });
 
     } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })
+        console.log(error);
+        res.json({ success: false, message: error.message });
     }
-
 }
 
 // API to mark appointment completed for doctor panel
 const appointmentComplete = async (req, res) => {
     try {
 
-        const { docId, appointmentId } = req.body
+        const docId = req.docId;
+        const { appointmentId } = req.body;
 
-        const appointmentData = await appointmentModel.findById(appointmentId)
+        const appointmentData = await appointmentModel.findById(appointmentId);
+
         if (appointmentData && appointmentData.docId === docId) {
-            await appointmentModel.findByIdAndUpdate(appointmentId, { isCompleted: true })
-            return res.json({ success: true, message: 'Appointment Completed' })
+            await appointmentModel.findByIdAndUpdate(
+                appointmentId,
+                { isCompleted: true }
+            );
+
+            return res.json({
+                success: true,
+                message: 'Appointment Completed'
+            });
         }
 
-        res.json({ success: false, message: 'Appointment Cancelled' })
+        res.json({
+            success: false,
+            message: 'Appointment Cancelled'
+        });
 
     } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })
+        console.log(error);
+        res.json({ success: false, message: error.message });
     }
-
 }
 
 // API to get all doctors list for Frontend
@@ -155,15 +177,26 @@ const doctorProfile = async (req, res) => {
 const updateDoctorProfile = async (req, res) => {
     try {
 
-        const { docId, fees, address, available } = req.body
+        const docId = req.docId;
+        const { fees, address, available } = req.body;
 
-        await doctorModel.findByIdAndUpdate(docId, { fees, address, available })
+        await doctorModel.findByIdAndUpdate(docId, {
+            fees,
+            address,
+            available
+        });
 
-        res.json({ success: true, message: 'Profile Updated' })
+        res.json({
+            success: true,
+            message: 'Profile Updated'
+        });
 
     } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })
+        console.log(error);
+        res.json({
+            success: false,
+            message: error.message
+        });
     }
 }
 
