@@ -131,14 +131,23 @@ const changeAvailablity = async (req, res) => {
 const doctorProfile = async (req, res) => {
     try {
 
-        const { docId } = req.body
-        const profileData = await doctorModel.findById(docId).select('-password')
+        const docId = req.docId;
 
-        res.json({ success: true, profileData })
+        const profileData = await doctorModel
+            .findById(docId)
+            .select('-password');
+
+        res.json({
+            success: true,
+            profileData
+        });
 
     } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })
+        console.log(error);
+        res.json({
+            success: false,
+            message: error.message
+        });
     }
 }
 
@@ -393,9 +402,22 @@ const updateProfileImage = async (req, res) => {
 
         const imageUrl = imageUpload.secure_url;
 
+        console.log("req.docId =", req.docId);
+
         await doctorModel.findByIdAndUpdate(doctorId, {
             image: imageUrl
         });
+
+const doctor = await doctorModel.findById(doctorId);
+
+if (!doctor) {
+    return res.json({
+        success: false,
+        message: "Doctor not found"
+    });
+}
+
+console.log("Updated image:", doctor.image);
 
         res.json({
             success: true,
