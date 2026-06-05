@@ -67,6 +67,13 @@ Powered by Gemini API
 * Doctor Assistance & Suggestions
 * Intelligent Patient Support
 
+### 🩺 Doctor Application Portal
+* Enables healthcare professionals to apply, register, and join the platform through a structured application process
+* Admin-driven verification process ensures authenticity
+  
+### 📧 Email Confirmation System
+* Automatic Gmail notifications for appointment bookings and status updates.
+
 ---
 
 ### Tech Stack
