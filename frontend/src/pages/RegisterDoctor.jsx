@@ -247,13 +247,10 @@ const RegisterDoctor = () => {
                 />
             </div>
 
-            <button
-                type="submit"
-                className='bg-[#5F6FFF] text-white px-6 py-3 rounded'
-            >
+            <button type="submit"
+            className="bg-primary text-white px-6 py-3 rounded-lg hover:scale-105 active:scale-95 hover:shadow-lg transition-all duration-300">
                 Apply For Verification
             </button>
-
         </form>
     )
 }

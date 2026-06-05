@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 import { DoctorContext } from './context/DoctorContext';
 import { AdminContext } from './context/AdminContext';
-import { Route, Routes } from 'react-router-dom'
+// import { Route, Routes } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Navbar from './components/Navbar'
@@ -16,8 +16,9 @@ import DoctorDashboard from './pages/Doctor/DoctorDashboard';
 import DoctorProfile from './pages/Doctor/DoctorProfile';
 import RegisterDoctor from './pages/Doctor/RegisterDoctor'
 import PendingDoctors from "./pages/Admin/PendingDoctors";
-import DoctorForgotPassword from './pages/Doctor/DoctorForgotPassword'
-import DoctorResetPassword from './pages/Doctor/DoctorResetPassword'
+// import { Navigate } from "react-router-dom";
+import { Route, Routes, Navigate } from 'react-router-dom'
+
 
 const App = () => {
 
@@ -31,7 +32,14 @@ const App = () => {
       <div className='flex items-start'>
         <Sidebar />
         <Routes>
-          <Route path='/' element={<></>} />
+          <Route
+  path="/"
+  element={
+    aToken
+      ? <Navigate to="/admin-dashboard" />
+      : <Navigate to="/doctor-dashboard" />
+  }
+/>
           <Route path='/admin-dashboard' element={<Dashboard />} />
           <Route path='/all-appointments' element={<AllAppointments />} />
           <Route path='/add-doctor' element={<AddDoctor />} />
@@ -49,8 +57,6 @@ const App = () => {
       <ToastContainer />
       <Routes>
       <Route path="/" element={<Login />} />
-      <Route path="/doctor-forgot-password" element={<DoctorForgotPassword />} />
-      <Route path="/doctor-reset-password" element={<DoctorResetPassword />} />
       <Route path="/doctor-register" element={<RegisterDoctor />} />
     </Routes>
 
