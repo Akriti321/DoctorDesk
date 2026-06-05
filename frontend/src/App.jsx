@@ -13,6 +13,8 @@ import Footer from './components/Footer'
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Verify from './pages/Verify'
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword.jsx'
 
 import { useState } from 'react'
 import FloatingAIButton from './components/floatingbutton.jsx'
@@ -39,10 +41,9 @@ const App = () => {
         <Route path='/my-appointments' element={<MyAppointments />} />
         <Route path='/my-profile' element={<MyProfile />} />
         <Route path='/verify' element={<Verify />} />
-        <Route
-  path="/register-doctor"
-  element={<RegisterDoctor />}
-/>
+        <Route path="/forgot-password" element={<ForgotPassword />}/>
+        <Route path="/reset-password" element={<ResetPassword />}/>
+        <Route  path="/register-doctor"  element={<RegisterDoctor />}/>
       </Routes>
       <Footer />
 

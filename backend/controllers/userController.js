@@ -7,6 +7,7 @@ import appointmentModel from "../models/appointmentModel.js";
 import { v2 as cloudinary } from 'cloudinary'
 import razorpay from 'razorpay';
 import { sendAppointmentEmail } from "../utils/sendEmail.js";
+import sendOtpEmail from "../utils/sendOtpEmail.js";
 
 // Gateway Initialize
 const razorpayInstance = new razorpay({
@@ -325,7 +326,94 @@ const verifyRazorpay = async (req, res) => {
     }
 }
 
+//API to forget password
+const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
 
+        const user = await userModel.findOne({ email });
+
+        if (!user) {
+            return res.json({
+                success: false,
+                message: "User not found"
+            });
+        }
+
+        const otp =
+            Math.floor(100000 + Math.random() * 900000).toString();
+
+        user.resetOtp = otp;
+        user.otpExpire = Date.now() + 300000;
+
+        await user.save();
+
+        await sendOtpEmail(email, otp);
+
+        res.json({
+            success: true,
+            message: "OTP sent"
+        });
+
+    } catch (error) {
+        res.json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+//API to reset password
+const resetPassword = async (req, res) => {
+    try {
+
+        const {
+            email,
+            otp,
+            newPassword
+        } = req.body;
+
+        const user =
+            await userModel.findOne({ email });
+
+        if (!user) {
+            return res.json({
+                success: false,
+                message: "User not found"
+            });
+        }
+
+        if (
+            user.resetOtp !== otp ||
+            user.otpExpire < Date.now()
+        ) {
+            return res.json({
+                success: false,
+                message: "Invalid OTP"
+            });
+        }
+
+        const hashedPassword =
+            await bcrypt.hash(newPassword, 10);
+
+        user.password = hashedPassword;
+        user.resetOtp = "";
+        user.otpExpire = 0;
+
+        await user.save();
+
+        res.json({
+            success: true,
+            message: "Password changed"
+        });
+
+    } catch (error) {
+        res.json({
+            success: false,
+            message: error.message
+        });
+    }
+};
        
 
 export {
@@ -337,5 +425,7 @@ export {
     listAppointment,
     cancelAppointment,
     paymentRazorpay,
-    verifyRazorpay
+    verifyRazorpay,
+    forgotPassword,
+    resetPassword
 }

@@ -56,7 +56,6 @@ const approveDoctor = async (req, res) => {
 
 const rejectDoctor = async (req, res) => {
     try {
-
         const {
             doctorId,
             rejectionReason
@@ -254,6 +253,40 @@ const deleteDoctor = async (req, res) => {
         });
     }
 }
+
+// API to change doctor availability (Admin Panel)
+
+const changeAvailablity = async (req, res) => {
+  try {
+
+    const { docId } = req.body;
+
+    const doctor = await doctorModel.findById(docId);
+
+    if (!doctor) {
+      return res.json({
+        success: false,
+        message: "Doctor not found"
+      });
+    }
+
+    await doctorModel.findByIdAndUpdate(docId, {
+      available: !doctor.available
+    });
+
+    res.json({
+      success: true,
+      message: "Availability Changed"
+    });
+
+  } catch (error) {
+    console.log(error);
+    res.json({
+      success: false,
+      message: error.message
+    });
+  }
+};
 export {
     pendingDoctors,
     approveDoctor,
@@ -264,5 +297,6 @@ export {
     addDoctor,
     allDoctors,
     adminDashboard,
-    deleteDoctor
+    deleteDoctor,
+    changeAvailablity
 }
