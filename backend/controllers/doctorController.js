@@ -5,6 +5,7 @@ import { v2 as cloudinary } from "cloudinary";
 import doctorModel from "../models/doctorModel.js";
 import appointmentModel from "../models/appointmentModel.js";
 import nodemailer from 'nodemailer'
+import transporter from "../config/nodemailer.js";
 
 // API for doctor Login 
 const loginDoctor = async (req, res) => {
@@ -465,42 +466,47 @@ console.log("Updated image:", doctor.image);
     }
 };
 
-//API to forgor password
+
+//API for forgot password and send otp
 const forgotPasswordDoctor = async (req, res) => {
   try {
-    const { email } = req.body
+    const { email } = req.body;
 
-    const doctor = await doctorModel.findOne({ email })
+    const doctor = await doctorModel.findOne({ email });
 
     if (!doctor) {
       return res.json({
         success: false,
-        message: 'Doctor not found'
-      })
+        message: "Doctor not found",
+      });
     }
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString()
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    doctor.resetOtp = otp
-    doctor.resetOtpExpireAt = Date.now() + 10 * 60 * 1000
+    doctor.resetOtp = otp;
+    doctor.resetOtpExpireAt = Date.now() + 10 * 60 * 1000;
 
-    await doctor.save()
+    await doctor.save();
 
-    // Send email here
+    await transporter.sendMail({
+      from: process.env.SENDER_EMAIL,
+      to: email,
+      subject: "Password Reset OTP",
+      text: `Your OTP for password reset is ${otp}. It is valid for 10 minutes.`,
+    });
 
     res.json({
       success: true,
-      message: 'OTP sent successfully'
-    })
-
+      message: "OTP sent successfully",
+    });
   } catch (error) {
+    console.log(error);
     res.json({
       success: false,
-      message: error.message
-    })
+      message: error.message,
+    });
   }
-}
-
+};
 //API to reset password
 const resetPasswordDoctor = async (req, res) => {
   try {

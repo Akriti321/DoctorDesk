@@ -5,6 +5,7 @@ import bcrypt from "bcrypt";
 import validator from "validator";
 import { v2 as cloudinary } from "cloudinary";
 import userModel from "../models/userModel.js";
+import transporter from "../config/nodemailer.js";
 
 // API for admin login
 const pendingDoctors = async (req, res) => {
@@ -31,7 +32,16 @@ const pendingDoctors = async (req, res) => {
 const approveDoctor = async (req, res) => {
     try {
 
-        const { doctorId } = req.body
+        const { doctorId } = req.body;
+
+        const doctor = await doctorModel.findById(doctorId);
+
+        if (!doctor) {
+            return res.json({
+                success: false,
+                message: "Doctor not found"
+            });
+        }
 
         await doctorModel.findByIdAndUpdate(
             doctorId,
@@ -39,48 +49,83 @@ const approveDoctor = async (req, res) => {
                 verificationStatus: "approved",
                 approvedAt: Date.now()
             }
-        )
+        );
+
+        await transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: doctor.email,
+            subject: "Doctor Registration Approved",
+            html: `
+                <h2>Congratulations ${doctor.name}</h2>
+                <p>Your registration request has been approved.</p>
+                <p>You can now log in and access your doctor dashboard.</p>
+                <br/>
+                <p>Regards,</p>
+                <p>CareConnet Team</p>
+            `
+        });
 
         res.json({
             success: true,
             message: "Doctor Approved"
-        })
+        });
 
     } catch (error) {
+        console.log(error);
         res.json({
             success: false,
             message: error.message
-        })
+        });
     }
-}
+};
+
 
 const rejectDoctor = async (req, res) => {
     try {
-        const {
-            doctorId,
-            rejectionReason
-        } = req.body
+
+        const { doctorId } = req.body;
+
+        const doctor = await doctorModel.findById(doctorId);
+
+        if (!doctor) {
+            return res.json({
+                success: false,
+                message: "Doctor not found"
+            });
+        }
 
         await doctorModel.findByIdAndUpdate(
             doctorId,
             {
-                verificationStatus: "rejected",
-                rejectionReason
+                verificationStatus: "rejected"
             }
-        )
+        );
+
+        await transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: doctor.email,
+            subject: "Doctor Registration Rejected",
+            html: `
+                <h2>Hello ${doctor.name}</h2>
+                <p>We regret to inform you that your registration request has been rejected.</p>
+                <p>If you have any questions, please contact support.</p>
+                <br/>
+                <p>CareConnect Team</p>
+            `
+        });
 
         res.json({
             success: true,
             message: "Doctor Rejected"
-        })
+        });
 
     } catch (error) {
         res.json({
             success: false,
             message: error.message
-        })
+        });
     }
-}
+};
 
 const loginAdmin = async (req, res) => {
     try {
