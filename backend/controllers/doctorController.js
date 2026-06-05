@@ -137,7 +137,7 @@ const doctorList = async (req, res) => {
 const changeAvailablity = async (req, res) => {
     try {
 
-        const { docId } = req.body
+        const docId  = req.docId;
 
         const docData = await doctorModel.findById(docId)
         await doctorModel.findByIdAndUpdate(docId, { available: !docData.available })
@@ -204,7 +204,7 @@ const updateDoctorProfile = async (req, res) => {
 const doctorDashboard = async (req, res) => {
     try {
 
-        const { docId } = req.body
+        const  docId  = req.docId
 
         const appointments = await appointmentModel.find({ docId })
 
@@ -340,9 +340,8 @@ const registerDoctor = async (req, res) => {
 // API to add prescription
 const addPrescription = async (req, res) => {
     try {
-
+        const docId  = req.docId;
         const {
-            docId,
             appointmentId,
             medicines,
             notes
