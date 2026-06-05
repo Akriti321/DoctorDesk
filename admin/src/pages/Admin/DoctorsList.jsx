@@ -26,8 +26,10 @@ const DoctorsList = () => {
                 <p>Available</p>
               </div>
               <div className='mt-3'>
-                <button onClick={() => {if (window.confirm("Delete this doctor?")) {deleteDoctor(item._id)}}} className='bg-[#4BC4A3] text-white px-3 py-1 rounded hover:bg-red-600'>  Remove </button>
-              </div>
+                 <button
+                  onClick={() => deleteDoctor(item._id)}
+                  className='bg-[#4BC4A3] text-white px-3 py-1 rounded hover:bg-red-600'>Remove</button>
+               </div>
             </div>
           </div>
         ))}
