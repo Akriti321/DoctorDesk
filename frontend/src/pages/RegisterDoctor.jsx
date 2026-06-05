@@ -152,7 +152,7 @@ const RegisterDoctor = () => {
 >
     <option value="">Select Speciality</option>
     <option value="General physician">General physician</option>
-    <option value="Gynecologist">Gynaecologist</option>
+    <option value="Gynaecologist">Gynaecologist</option>
     <option value="Dermatologist">Dermatologist</option>
     <option value="Pediatricians">Pediatrician</option>
     <option value="Neurologist">Neurologist</option>

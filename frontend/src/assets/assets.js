@@ -35,14 +35,14 @@ import doc15 from './doc15.png'
 // import Dermatologist from './Dermatologist.svg'
 // import Gastroenterologist from './Gastroenterologist.svg'
 // import General_physician from './General_physician.svg'
-// import Gynecologist from './Gynecologist.svg'
+
 // import Neurologist from './Neurologist.svg'
 // import Pediatricians from './Pediatricians.svg'
 
 import Dermatologist from './derma.png'
 import Gastroenterologist from './gastro.png'
 import General_physician from './gp.png'
-import Gynecologist from './gynaco.png'
+import Gynaecologist from './gynaco.png'
 import Neurologist from './neuro.png'
 import Pediatricians from './pedi.png'
 import Orthopaedist from './ortho.png'
@@ -79,7 +79,7 @@ export const specialityData = [
     },
     {
         speciality: 'Gynaecologist',
-        image: Gynecologist
+        image: Gynaecologist
     },
     {
         speciality: 'Dermatologist',
@@ -123,7 +123,7 @@ export const doctors = [
         _id: 'doc2',
         name: 'Dr. Emily Larson',
         image: doc2,
-        speciality: 'Gynecologist',
+        speciality: 'Gynaecologist',
         degree: 'MBBS',
         experience: '3 Years',
         about: 'Dr. Davis has a strong commitment to delivering comprehensive medical care, focusing on preventive medicine, early diagnosis, and effective treatment strategies. Dr. Davis has a strong commitment to delivering comprehensive medical care, focusing on preventive medicine, early diagnosis, and effective treatment strategies.',
@@ -207,7 +207,7 @@ export const doctors = [
         _id: 'doc8',
         name: 'Dr. Timothy White',
         image: doc8,
-        speciality: 'Gynecologist',
+        speciality: 'Gynaecologist',
         degree: 'MBBS',
         experience: '3 Years',
         about: 'Dr. Davis has a strong commitment to delivering comprehensive medical care, focusing on preventive medicine, early diagnosis, and effective treatment strategies. Dr. Davis has a strong commitment to delivering comprehensive medical care, focusing on preventive medicine, early diagnosis, and effective treatment strategies.',
@@ -291,7 +291,7 @@ export const doctors = [
         _id: 'doc14',
         name: 'Dr. Ryan Martinez',
         image: doc14,
-        speciality: 'Gynecologist',
+        speciality: 'Gynaecologist',
         degree: 'MBBS',
         experience: '3 Years',
         about: 'Dr. Davis has a strong commitment to delivering comprehensive medical care, focusing on preventive medicine, early diagnosis, and effective treatment strategies. Dr. Davis has a strong commitment to delivering comprehensive medical care, focusing on preventive medicine, early diagnosis, and effective treatment strategies.',
