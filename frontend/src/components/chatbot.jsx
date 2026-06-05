@@ -1,7 +1,8 @@
 
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
-import { doctors } from '../assets/assets'
+// import { doctors } from '../assets/assets'
+
 import React, { useState, useContext ,useRef, useEffect} from 'react'
 import { AppContext } from '../context/AppContext'
 
@@ -9,8 +10,8 @@ import { AppContext } from '../context/AppContext'
 const ChatBot = ({ setIsChatOpen }) => {
 
     const navigate = useNavigate()
-
-    const { userData } = useContext(AppContext)
+//added doctors here
+    const { userData, doctors } = useContext(AppContext)
     
 
     const calculateAge = (dob) => {
@@ -196,20 +197,40 @@ const { data } = await axios.post(
     }
 )
 
-    if (data.success) {
+//     if (data.success) {
 
-const doctorCount = doctors.filter(
-    doc => doc.speciality === data.speciality
-).length
+// const doctorCount = doctors.filter(
+//     doc => doc.speciality === data.speciality
+// ).length
 
-const botReply = {
-    sender: 'bot',
-    speciality: data.speciality,
-    reason: data.reason,
-    disclaimer: data.disclaimer,
-    doctorCount
-}
+// const botReply = {
+//     sender: 'bot',
+//     speciality: data.speciality,
+//     reason: data.reason,
+//     disclaimer: data.disclaimer,
+//     doctorCount
+// }
+if (data.success) {
 
+    console.log("AI speciality =", JSON.stringify(data.speciality))
+
+   console.log("FULL DOCTORS =", doctors)
+
+    const doctorCount = doctors.filter(
+        doc =>
+            doc.speciality?.trim().toLowerCase() ===
+            data.speciality?.trim().toLowerCase()
+    ).length
+
+    console.log("Doctor count =", doctorCount)
+
+    const botReply = {
+        sender: 'bot',
+        speciality: data.speciality,
+        reason: data.reason,
+        disclaimer: data.disclaimer,
+        doctorCount
+    }
         setMessages(prev => [...prev, botReply])
         setLoading(false)
 
