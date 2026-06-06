@@ -57,38 +57,92 @@ const appointmentsDoctor = async (req, res) => {
     }
 }
 
-// API to cancel appointment for doctor panel
+// // API to cancel appointment for doctor panel
+// const appointmentCancel = async (req, res) => {
+//     try {
+
+//         const docId = req.docId;
+//         const { appointmentId } = req.body;
+
+//         const appointmentData = await appointmentModel.findById(appointmentId);
+
+//         if (appointmentData && appointmentData.docId === docId) {
+//             await appointmentModel.findByIdAndUpdate(
+//                 appointmentId,
+//                 { cancelled: true }
+//             );
+
+//             return res.json({
+//                 success: true,
+//                 message: 'Appointment Cancelled'
+//             });
+//         }
+
+//         res.json({
+//             success: false,
+//             message: 'Appointment Cancelled'
+//         });
+
+//     } catch (error) {
+//         console.log(error);
+//         res.json({ success: false, message: error.message });
+//     }
+// }
+
 const appointmentCancel = async (req, res) => {
     try {
 
-        const docId = req.docId;
-        const { appointmentId } = req.body;
+        const docId = req.docId
+        const { appointmentId } = req.body
 
-        const appointmentData = await appointmentModel.findById(appointmentId);
+        const appointmentData =
+            await appointmentModel.findById(appointmentId)
 
         if (appointmentData && appointmentData.docId === docId) {
+
             await appointmentModel.findByIdAndUpdate(
                 appointmentId,
                 { cancelled: true }
-            );
+            )
+
+            // Release booked slot
+            const { slotDate, slotTime } = appointmentData
+
+            const doctorData =
+                await doctorModel.findById(docId)
+
+            let slots_booked =
+                doctorData.slots_booked
+
+            slots_booked[slotDate] =
+                slots_booked[slotDate].filter(
+                    e => e !== slotTime
+                )
+
+            await doctorModel.findByIdAndUpdate(
+                docId,
+                { slots_booked }
+            )
 
             return res.json({
                 success: true,
                 message: 'Appointment Cancelled'
-            });
+            })
         }
 
         res.json({
             success: false,
-            message: 'Appointment Cancelled'
-        });
+            message: 'Unauthorized'
+        })
 
     } catch (error) {
-        console.log(error);
-        res.json({ success: false, message: error.message });
+        console.log(error)
+        res.json({
+            success: false,
+            message: error.message
+        })
     }
 }
-
 // API to mark appointment completed for doctor panel
 const appointmentComplete = async (req, res) => {
     try {

@@ -11,7 +11,8 @@ const MyAppointments = () => {
    const {
     backendUrl,
     token,
-    userData
+    userData,
+    getDoctosData
 } = useContext(AppContext)
     const navigate = useNavigate()
 
@@ -48,26 +49,51 @@ const MyAppointments = () => {
         }
     }
 
-    // Function to cancel appointment Using API
-    const cancelAppointment = async (appointmentId) => {
+    // // Function to cancel appointment Using API
+    // const cancelAppointment = async (appointmentId) => {
 
-        try {
+    //     try {
 
-            const { data } = await axios.post(backendUrl + '/api/user/cancel-appointment', { appointmentId }, { headers: { token } })
+    //         const { data } = await axios.post(backendUrl + '/api/user/cancel-appointment', { appointmentId }, { headers: { token } })
 
-            if (data.success) {
-                toast.success(data.message)
-                getUserAppointments()
-            } else {
-                toast.error(data.message)
-            }
+    //         if (data.success) {
+    //             toast.success(data.message)
+    //             getUserAppointments()
+    //         } else {
+    //             toast.error(data.message)
+    //         }
 
-        } catch (error) {
-            console.log(error)
-            toast.error(error.message)
+    //     } catch (error) {
+    //         console.log(error)
+    //         toast.error(error.message)
+    //     }
+
+    // }
+const cancelAppointment = async (appointmentId) => {
+
+    try {
+
+        const { data } = await axios.post(
+            backendUrl + '/api/user/cancel-appointment',
+            { appointmentId },
+            { headers: { token } }
+        )
+
+        if (data.success) {
+            toast.success(data.message)
+
+            getUserAppointments()
+            getDoctosData()
+
+        } else {
+            toast.error(data.message)
         }
 
+    } catch (error) {
+        console.log(error)
+        toast.error(error.message)
     }
+}
 
     const initPay = (order) => {
         const options = {

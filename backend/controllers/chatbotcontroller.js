@@ -25,7 +25,7 @@ Available Specialists:
 - Neurologist
 - Gastroenterologist
 -Cardiologist
-- Orthopedist
+- Orthopaedist
 
 
 Return ONLY valid JSON.

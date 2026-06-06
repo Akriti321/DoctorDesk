@@ -33,15 +33,28 @@ const appointmentSchema = new mongoose.Schema({
 }
 })
 
-appointmentSchema.index
-(
+// appointmentSchema.index
+// (
+// {
+//     docId: 1,
+//     slotDate: 1,
+//     slotTime: 1
+// },
+// {
+//     unique: true
+// }
+// )
+appointmentSchema.index(
 {
     docId: 1,
     slotDate: 1,
     slotTime: 1
 },
 {
-    unique: true
+    unique: true,
+    partialFilterExpression: {
+        cancelled: false
+    }
 }
 )
 
